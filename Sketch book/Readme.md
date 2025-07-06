@@ -31,4 +31,7 @@ Contributions are welcome! Please follow these steps:
 ## Contact  
 For questions or feedback, feel free to reach out via email or open an issue in the repository.  
 
+## Notes 
+few auto features not working properly
+
 Happy sketching!  

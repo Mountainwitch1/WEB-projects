@@ -123,6 +123,40 @@ class AdvancedDrawingApp {
         document.getElementById('exportBtn').addEventListener('click', this.exportImage.bind(this));
         document.getElementById('newCanvas').addEventListener('click', this.newCanvas.bind(this));
 
+        // Sidebar toggle
+        document.getElementById('toggleSidebar').addEventListener('click', this.toggleSidebar.bind(this));
+                
+        // Zoom controls
+        document.getElementById('zoomIn').addEventListener('click', () => this.zoom(1.2));
+        document.getElementById('zoomOut').addEventListener('click', () => this.zoom(0.8));
+        document.getElementById('fitToScreen').addEventListener('click', this.fitToScreen.bind(this));
+    }
+
+    bindSlider(sliderId, valueId, callback) {
+        const slider = document.getElementById(sliderId);
+        const valueDisplay = document.getElementById(valueId);
+        
+        slider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            valueDisplay.textContent = value + (sliderId === 'opacitySlider' ? '%' : '');
+            callback(value);
+        });
+    }
+
+    updateCursor() {
+        const cursors = {
+            brush: 'crosshair',
+            pencil: 'crosshair',
+            eraser: 'grab',
+            line: 'crosshair',
+            rectangle: 'crosshair',
+            circle: 'crosshair',
+            spray: 'crosshair',
+            fill: 'pointer'
+        };
+        this.canvas.style.cursor = cursors[this.currentTool] || 'crosshair';
+    }
+
 
 
 

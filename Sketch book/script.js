@@ -110,7 +110,12 @@ class AdvancedDrawingApp {
         this.canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
         this.canvas.addEventListener('mouseout', this.stopDrawing.bind(this));
 
+        // Touch events
+        this.canvas.addEventListener('touchstart', this.handleTouch.bind(this));
+        this.canvas.addEventListener('touchmove', this.handleTouch.bind(this));
+        this.canvas.addEventListener('touchend', this.stopDrawing.bind(this));
 
-        
+
+
 
 

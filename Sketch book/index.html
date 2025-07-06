@@ -3,67 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Sketchly</title>
+    <head>
+        ...
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    </head>
+    
 </head>
 <body>
     <div class="header">
         <div class="logo">Drawing Studio Pro</div>
         <div class="canvas-actions">
             <button class="action-btn" id="toggleSidebar">
-                <span>☰</span>
+                <i class="fas fa-bars"></i>
             </button>
             <button class="action-btn" id="newCanvas">
-                <span>📄</span> New
+                <i class="fas fa-file"></i> New
             </button>
             <button class="action-btn" id="saveBtn">
-                <span>💾</span> Save
+                <i class="fas fa-save"></i> Save
             </button>
             <button class="action-btn primary" id="exportBtn">
-                <span>📤</span> Export
+                <i class="fas fa-upload"></i> Export
             </button>
         </div>
     </div>
-    <div class="main-container">
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-section">
-                <div class="section-title">
-                    <span>🛠️</span>
-                    Tools
-                </div>
-                <div class="tool-grid">
-                    <div class="tool-item active" data-tool="brush">
-                        <span class="tool-icon">🖌️</span>
-                        <span class="tool-name">Brush</span>
-                    </div>
-                    <div class="tool-item" data-tool="pencil">
-                        <span class="tool-icon">✏️</span>
-                        <span class="tool-name">Pencil</span>
-                    </div>
-                    <div class="tool-item" data-tool="eraser">
-                        <span class="tool-icon">🧽</span>
-                        <span class="tool-name">Eraser</span>
-                    </div>
-                    <div class="tool-item" data-tool="line">
-                        <span class="tool-icon">📏</span>
-                        <span class="tool-name">Line</span>
-                    </div>
-                    <div class="tool-item" data-tool="rectangle">
-                        <span class="tool-icon">⬜</span>
-                        <span class="tool-name">Rectangle</span>
-                    </div>
-                    <div class="tool-item" data-tool="circle">
-                        <span class="tool-icon">⭕</span>
-                        <span class="tool-name">Circle</span>
-                    </div>
-                    <div class="tool-item" data-tool="spray">
-                        <span class="tool-icon">🌊</span>
-                        <span class="tool-name">Spray</span>
-                    </div>
-                    <div class="tool-item" data-tool="fill">
-                        <span class="tool-icon">🪣</span>
-                        <span class="tool-name">Fill</span>
-                    </div>
-                </div>
+    
+    <div class="sidebar-section">
+        <div class="section-title">
+            <i class="fas fa-tools"></i> Tools
+        </div>
+        <div class="tool-grid">
+            <div class="tool-item active" data-tool="brush">
+                <i class="fas fa-paint-brush tool-icon"></i>
+                <span class="tool-name">Brush</span>
             </div>
+            <div class="tool-item" data-tool="pencil">
+                <i class="fas fa-pencil-alt tool-icon"></i>
+                <span class="tool-name">Pencil</span>
+            </div>
+            <div class="tool-item" data-tool="eraser">
+                <i class="fas fa-eraser tool-icon"></i>
+                <span class="tool-name">Eraser</span>
+            </div>
+            <div class="tool-item" data-tool="line">
+                <i class="fas fa-ruler-horizontal tool-icon"></i>
+                <span class="tool-name">Line</span>
+            </div>
+            <div class="tool-item" data-tool="rectangle">
+                <i class="far fa-square tool-icon"></i>
+                <span class="tool-name">Rectangle</span>
+            </div>
+            <div class="tool-item" data-tool="circle">
+                <i class="far fa-circle tool-icon"></i>
+                <span class="tool-name">Circle</span>
+            </div>
+            <div class="tool-item" data-tool="spray">
+                <i class="fas fa-spray-can tool-icon"></i>
+                <span class="tool-name">Spray</span>
+            </div>
+            <div class="tool-item" data-tool="fill">
+                <i class="fas fa-fill-drip tool-icon"></i>
+                <span class="tool-name">Fill</span>
+            </div>
+        </div>
+    </div>
+    
 </body>
 </html>

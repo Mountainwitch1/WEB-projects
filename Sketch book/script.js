@@ -115,6 +115,14 @@ class AdvancedDrawingApp {
         this.canvas.addEventListener('touchmove', this.handleTouch.bind(this));
         this.canvas.addEventListener('touchend', this.stopDrawing.bind(this));
 
+        // Control buttons
+        document.getElementById('undoBtn').addEventListener('click', this.undo.bind(this));
+        document.getElementById('redoBtn').addEventListener('click', this.redo.bind(this));
+        document.getElementById('clearBtn').addEventListener('click', this.clearCanvas.bind(this));
+        document.getElementById('saveBtn').addEventListener('click', this.saveImage.bind(this));
+        document.getElementById('exportBtn').addEventListener('click', this.exportImage.bind(this));
+        document.getElementById('newCanvas').addEventListener('click', this.newCanvas.bind(this));
+
 
 
 

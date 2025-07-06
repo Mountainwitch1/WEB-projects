@@ -197,6 +197,247 @@ class AdvancedDrawingApp {
         this.lastY = pos.y;
         
         this.smoothPoints = [{x: pos.x, y: pos.y}];
+
+        // Set drawing properties
+        this.ctx.globalAlpha = this.currentOpacity / 100;
+        this.ctx.lineWidth = this.currentSize;
+        this.ctx.strokeStyle = this.currentColor;
+        this.ctx.fillStyle = this.currentColor;
+
+        if (this.currentTool === 'brush' || this.currentTool === 'pencil') {
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos.x, pos.y);
+        } else if (this.currentTool === 'eraser') {
+            this.ctx.globalCompositeOperation = 'destination-out';
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos.x, pos.y);
+        } else if (this.currentTool === 'fill') {
+            this.floodFill(pos.x, pos.y);
+        }
+
+        this.updateStatus('Drawing...');
+    }
+
+    draw(e) {
+        if (!this.isDrawing) return;
+
+        const pos = this.getMousePos(e);
+        
+        switch (this.currentTool) {
+            case 'brush':
+                this.drawBrush(pos);
+                break;
+            case 'pencil':
+                this.drawPencil(pos);
+                break;
+            case 'eraser':
+                this.drawEraser(pos);
+                break;
+            case 'line':
+                this.drawLine(pos);
+                break;
+            case 'rectangle':
+                this.drawRectangle(pos);
+                break;
+            case 'circle':
+                this.drawCircle(pos);
+                break;
+            case 'spray':
+                this.drawSpray(pos);
+                break;
+        }
+    }
+
+    drawBrush(pos) {
+        this.ctx.globalCompositeOperation = 'source-over';
+        
+        if (this.features.smoothing && this.currentSmoothing > 0) {
+            this.smoothPoints.push({x: pos.x, y: pos.y});
+            
+            if (this.smoothPoints.length > 3) {
+                const smoothed = this.smoothStroke(this.smoothPoints);
+                this.ctx.quadraticCurveTo(
+                    smoothed.x1, smoothed.y1,
+                    smoothed.x2, smoothed.y2
+                );
+                this.ctx.stroke();
+                this.smoothPoints = this.smoothPoints.slice(-2);
+            }
+        } else {
+            this.ctx.lineTo(pos.x, pos.y);
+            this.ctx.stroke();
+        }
+
+        if (this.features.symmetry) {
+            this.drawSymmetry(pos);
+        }
+    }
+
+    drawPencil(pos) {
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.lineWidth = Math.max(1, this.currentSize * 0.5);
+        this.ctx.lineTo(pos.x, pos.y);
+        this.ctx.stroke();
+    }
+
+    drawEraser(pos) {
+        this.ctx.globalCompositeOperation = 'destination-out';
+        this.ctx.lineTo(pos.x, pos.y);
+        this.ctx.stroke();
+    }
+
+    drawLine(pos) {
+        this.redrawCanvas();
+        
+        let endX = pos.x;
+        let endY = pos.y;
+        
+        if (this.features.magneticLine) {
+            const angle = Math.atan2(pos.y - this.startY, pos.x - this.startX);
+            const snapAngle = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
+            const distance = Math.sqrt(Math.pow(pos.x - this.startX, 2) + Math.pow(pos.y - this.startY, 2));
+            
+            endX = this.startX + Math.cos(snapAngle) * distance;
+            endY = this.startY + Math.sin(snapAngle) * distance;
+        }
+        
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.startX, this.startY);
+        this.ctx.lineTo(endX, endY);
+        this.ctx.stroke();
+    }
+
+    drawRectangle(pos) {
+        this.redrawCanvas();
+        
+        let width = pos.x - this.startX;
+        let height = pos.y - this.startY;
+        
+        if (this.features.shapeAssist) {
+            // Make perfect square if shift is held or feature is enabled
+            const size = Math.min(Math.abs(width), Math.abs(height));
+            width = width < 0 ? -size : size;
+            height = height < 0 ? -size : size;
+        }
+        
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.strokeRect(this.startX, this.startY, width, height);
+    }
+
+    drawCircle(pos) {
+        this.redrawCanvas();
+        
+        const radius = Math.sqrt(Math.pow(pos.x - this.startX, 2) + Math.pow(pos.y - this.startY, 2));
+        
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.beginPath();
+        this.ctx.arc(this.startX, this.startY, radius, 0, 2 * Math.PI);
+        this.ctx.stroke();
+    }
+
+    drawSpray(pos) {
+        this.ctx.globalCompositeOperation = 'source-over';
+        
+        const density = this.currentSize;
+        const radius = this.currentSize * 2;
+        
+        for (let i = 0; i < density; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * radius;
+            const x = pos.x + Math.cos(angle) * distance;
+            const y = pos.y + Math.sin(angle) * distance;
+            
+            this.ctx.fillRect(x, y, 1, 1);
+        }
+    }
+
+    drawSymmetry(pos) {
+        const centerX = this.canvas.width / 2;
+        const mirrorX = centerX + (centerX - pos.x);
+        
+        this.ctx.lineTo(mirrorX, pos.y);
+        this.ctx.stroke();
+    }
+
+    smoothStroke(points) {
+        const factor = this.currentSmoothing / 100;
+        const len = points.length;
+        
+        if (len < 3) return points[len - 1];
+        
+        const p1 = points[len - 3];
+        const p2 = points[len - 2];
+        const p3 = points[len - 1];
+        
+        return {
+            x1: p1.x + (p2.x - p1.x) * factor,
+            y1: p1.y + (p2.y - p1.y) * factor,
+            x2: p2.x + (p3.x - p2.x) * factor,
+            y2: p2.y + (p3.y - p2.y) * factor
+        };
+    }
+
+    floodFill(x, y) {
+        // Simple flood fill implementation
+        const targetColor = this.getPixelColor(x, y);
+        const fillColor = this.hexToRgb(this.currentColor);
+        
+        if (this.colorsEqual(targetColor, fillColor)) return;
+        
+        this.showAutoIndicator();
+        
+        setTimeout(() => {
+            this.floodFillRecursive(Math.floor(x), Math.floor(y), targetColor, fillColor);
+            this.hideAutoIndicator();
+        }, 100);
+    }
+
+    floodFillRecursive(x, y, targetColor, fillColor) {
+        const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+        const stack = [{x, y}];
+        
+        while (stack.length > 0) {
+            const {x: currentX, y: currentY} = stack.pop();
+            
+            if (currentX < 0 || currentX >= this.canvas.width || 
+                currentY < 0 || currentY >= this.canvas.height) continue;
+            
+            const index = (currentY * this.canvas.width + currentX) * 4;
+            const currentColor = {
+                r: data[index],
+                g: data[index + 1],
+                b: data[index + 2],
+                a: data[index + 3]
+            };
+            
+            if (!this.colorsEqual(currentColor, targetColor)) continue;
+            
+            data[index] = fillColor.r;
+            data[index + 1] = fillColor.g;
+            data[index + 2] = fillColor.b;
+            data[index + 3] = 255;
+            
+            stack.push({x: currentX + 1, y: currentY});
+            stack.push({x: currentX - 1, y: currentY});
+            stack.push({x: currentX, y: currentY + 1});
+            stack.push({x: currentX, y: currentY - 1});
+        }
+        
+        this.ctx.putImageData(imageData, 0, 0);
+    }
+
+    getPixelColor(x, y) {
+        const imageData = this.ctx.getImageData(x, y, 1, 1);
+        const data = imageData.data;
+        return {
+            r: data[0],
+            g: data[1],
+            b: data[2],
+            a: data[3]
+        };
+    }
         
 
 

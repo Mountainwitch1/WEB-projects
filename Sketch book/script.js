@@ -62,3 +62,22 @@ class AdvancedDrawingApp {
                 this.updateStatus(`${tool.dataset.tool} tool selected`);
             });
         });
+
+        // Feature toggles
+        document.querySelectorAll('.feature-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                const feature = toggle.dataset.feature;
+                const toggleSwitch = toggle.querySelector('.toggle-switch');
+                
+                this.features[feature] = !this.features[feature];
+                toggleSwitch.classList.toggle('active', this.features[feature]);
+                
+                this.updateStatus(`${feature} ${this.features[feature] ? 'enabled' : 'disabled'}`);
+            });
+        });
+
+        // Color picker
+        document.getElementById('colorPicker').addEventListener('change', (e) => {
+            this.currentColor = e.target.value;
+            this.updateActiveColor();
+        });

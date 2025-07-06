@@ -7,6 +7,7 @@
     <head>
         ...
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link rel="stylesheet" href="style.css">
     </head>
     
 </head>
@@ -89,5 +90,35 @@
                 </button>
             </div>
         </div>
+        <div class="canvas-area">
+            <canvas id="canvas" width="800" height="600"></canvas>
+            <div class="auto-indicator" id="autoIndicator">
+                <span class="loading-spinner"></span>
+                Auto-drawing...
+            </div>
+            <div class="shape-preview" id="shapePreview"></div>
+        </div>
+
+        <div class="floating-panel">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span id="statusText">Ready to draw</span>
+            </div>
+            <div class="canvas-actions">
+                <button class="action-btn" id="zoomIn">
+                    <i class="fas fa-search-plus"></i> Zoom In
+                </button>
+                <button class="action-btn" id="zoomOut">
+                    <i class="fas fa-search-minus"></i> Zoom Out
+                </button>
+                <button class="action-btn" id="fitToScreen">
+                    <i class="fas fa-expand-arrows-alt"></i> Fit
+                </button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+<script src="script.js"></script>
 </body>
 </html>

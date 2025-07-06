@@ -156,6 +156,48 @@ class AdvancedDrawingApp {
         };
         this.canvas.style.cursor = cursors[this.currentTool] || 'crosshair';
     }
+    updateStatus(message) {
+        document.getElementById('statusText').textContent = message;
+    }
+
+    updateActiveColor() {
+        document.querySelectorAll('.preset-color').forEach(color => {
+            color.classList.toggle('active', color.dataset.color === this.currentColor);
+        });
+    }
+
+    getMousePos(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        
+        return {
+            x: (e.clientX - rect.left) * scaleX,
+            y: (e.clientY - rect.top) * scaleY
+        };
+    }
+    handleTouch(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        if (!touch) return;
+        
+        const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        this.canvas.dispatchEvent(mouseEvent);
+    }
+
+    startDrawing(e) {
+        this.isDrawing = true;
+        const pos = this.getMousePos(e);
+        this.startX = pos.x;
+        this.startY = pos.y;
+        this.lastX = pos.x;
+        this.lastY = pos.y;
+        
+        this.smoothPoints = [{x: pos.x, y: pos.y}];
+        
 
 
 

@@ -438,6 +438,184 @@ class AdvancedDrawingApp {
             a: data[3]
         };
     }
+    hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    colorsEqual(color1, color2) {
+        return color1.r === color2.r && 
+               color1.g === color2.g && 
+               color1.b === color2.b;
+    }
+
+    showAutoIndicator() {
+        const indicator = document.getElementById('autoIndicator');
+        indicator.classList.add('show');
+    }
+
+    hideAutoIndicator() {
+        const indicator = document.getElementById('autoIndicator');
+        indicator.classList.remove('show');
+    }
+
+    stopDrawing() {
+        if (this.isDrawing) {
+            this.isDrawing = false;
+            this.ctx.globalCompositeOperation = 'source-over';
+            this.ctx.globalAlpha = 1;
+            this.ctx.beginPath();
+            this.strokeCount++;
+            this.updateStrokeCount();
+            this.saveState();
+            this.updateStatus('Ready to draw');
+        }
+    }
+
+    redrawCanvas() {
+        if (this.history.length > 0) {
+            const img = new Image();
+            img.onload = () => {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.drawImage(img, 0, 0);
+            };
+            img.src = this.history[this.historyStep];
+        }
+    }
+
+    saveState() {
+        this.historyStep++;
+        if (this.historyStep < this.history.length) {
+            this.history.length = this.historyStep;
+        }
+        this.history.push(this.canvas.toDataURL());
+    }
+
+    undo() {
+        if (this.historyStep > 0) {
+            this.historyStep--;
+            this.restoreState();
+            this.updateStatus('Undo');
+        }
+    }
+
+    redo() {
+        if (this.historyStep < this.history.length - 1) {
+            this.historyStep++;
+            this.restoreState();
+            this.updateStatus('Redo');
+        }
+    }
+
+    restoreState() {
+        const img = new Image();
+        img.onload = () => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.drawImage(img, 0, 0);
+        };
+        img.src = this.history[this.historyStep];
+    }
+
+    clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.strokeCount = 0;
+        this.updateStrokeCount();
+        this.saveState();
+        this.updateStatus('Canvas cleared');
+    }
+
+    newCanvas() {
+        if (confirm('Create a new canvas? This will clear your current work.')) {
+            this.clearCanvas();
+            this.updateStatus('New canvas created');
+        }
+    }
+
+    saveImage() {
+        const link = document.createElement('a');
+        link.download = 'drawing-' + new Date().getTime() + '.png';
+        link.href = this.canvas.toDataURL();
+        link.click();
+        this.updateStatus('Image saved');
+    }
+
+    exportImage() {
+        const link = document.createElement('a');
+        link.download = 'artwork-' + new Date().getTime() + '.png';
+        link.href = this.canvas.toDataURL('image/png', 1.0);
+        link.click();
+        this.updateStatus('Image exported');
+    }
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+
+    zoom(factor) {
+        this.zoomLevel *= factor;
+        this.zoomLevel = Math.max(0.1, Math.min(5, this.zoomLevel));
+        this.canvas.style.transform = `scale(${this.zoomLevel})`;
+        document.getElementById('zoomLevel').textContent = Math.round(this.zoomLevel * 100) + '%';
+        this.updateStatus(`Zoom: ${Math.round(this.zoomLevel * 100)}%`);
+    }
+
+    fitToScreen() {
+        const container = document.querySelector('.canvas-area');
+        const containerRect = container.getBoundingClientRect();
+        const canvasRect = this.canvas.getBoundingClientRect();
+        
+        const scaleX = (containerRect.width - 80) / this.canvas.width;
+        const scaleY = (containerRect.height - 80) / this.canvas.height;
+        
+        this.zoomLevel = Math.min(scaleX, scaleY);
+        this.canvas.style.transform = `scale(${this.zoomLevel})`;
+        document.getElementById('zoomLevel').textContent = Math.round(this.zoomLevel * 100) + '%';
+        this.updateStatus('Fit to screen');
+    }
+
+    updateStrokeCount() {
+        document.getElementById('strokeCount').textContent = `${this.strokeCount} strokes`;
+    }
+}
+
+// Initialize the app
+const app = new AdvancedDrawingApp();
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+            case 'z':
+                e.preventDefault();
+                if (e.shiftKey) {
+                    app.redo();
+                } else {
+                    app.undo();
+                }
+                break;
+            case 's':
+                e.preventDefault();
+                app.saveImage();
+                break;
+            case 'n':
+                e.preventDefault();
+                app.newCanvas();
+                break;
+        }
+    }
+});
+
+// Add responsive behavior
+window.addEventListener('resize', () => {
+    app.fitToScreen();
+});
         
 
 

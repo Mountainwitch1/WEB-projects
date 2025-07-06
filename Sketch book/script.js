@@ -104,3 +104,13 @@ class AdvancedDrawingApp {
             this.currentSmoothing = parseInt(value);
         });
 
+        // Canvas events
+        this.canvas.addEventListener('mousedown', this.startDrawing.bind(this));
+        this.canvas.addEventListener('mousemove', this.draw.bind(this));
+        this.canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
+        this.canvas.addEventListener('mouseout', this.stopDrawing.bind(this));
+
+
+        
+
+

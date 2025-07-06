@@ -29,6 +29,8 @@ class AdvancedDrawingApp {
         this.smoothPoints = [];
         this.tempCanvas = document.createElement('canvas');
         this.tempCtx = this.tempCanvas.getContext('2d');
+        this.previewCanvas = document.createElement('canvas');
+        this.previewCtx = this.previewCanvas.getContext('2d');
         
         this.initializeCanvas();
         this.bindEvents();
@@ -45,10 +47,15 @@ class AdvancedDrawingApp {
         // Set temp canvas size
         this.tempCanvas.width = this.canvas.width;
         this.tempCanvas.height = this.canvas.height;
+        this.previewCanvas.width = this.canvas.width;
+        this.previewCanvas.height = this.canvas.height;
         
         // Fill with white background
         this.ctx.fillStyle = '#ffffff';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Copy to temp canvas
+        this.tempCtx.drawImage(this.canvas, 0, 0);
     }
 
     bindEvents() {
@@ -59,35 +66,39 @@ class AdvancedDrawingApp {
                 tool.classList.add('active');
                 this.currentTool = tool.dataset.tool;
                 this.updateCursor();
-                this.updateStatus(`${tool.dataset.tool} tool selected`);
+                this.updateStatus(`${this.currentTool} tool selected`);
             });
         });
 
         // Feature toggles
-        document.querySelectorAll('.feature-toggle').forEach(toggle => {
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
             toggle.addEventListener('click', (e) => {
-                const feature = toggle.dataset.feature;
-                const toggleSwitch = toggle.querySelector('.toggle-switch');
-                
+                const feature = toggle.dataset.toggle;
                 this.features[feature] = !this.features[feature];
-                toggleSwitch.classList.toggle('active', this.features[feature]);
-                
+                toggle.classList.toggle('active', this.features[feature]);
                 this.updateStatus(`${feature} ${this.features[feature] ? 'enabled' : 'disabled'}`);
             });
         });
 
         // Color picker
-        document.getElementById('colorPicker').addEventListener('change', (e) => {
-            this.currentColor = e.target.value;
-            this.updateActiveColor();
-        });
+        const colorPicker = document.getElementById('colorPicker');
+        if (colorPicker) {
+            colorPicker.addEventListener('change', (e) => {
+                this.currentColor = e.target.value;
+                this.updateActiveColor();
+            });
+        }
+
         // Preset colors
         document.querySelectorAll('.preset-color').forEach(color => {
             color.addEventListener('click', (e) => {
                 document.querySelectorAll('.preset-color').forEach(c => c.classList.remove('active'));
                 color.classList.add('active');
                 this.currentColor = color.dataset.color;
-                document.getElementById('colorPicker').value = this.currentColor;
+                if (colorPicker) {
+                    colorPicker.value = this.currentColor;
+                }
+                this.updateStatus(`Color changed to ${this.currentColor}`);
             });
         });
 
@@ -98,7 +109,7 @@ class AdvancedDrawingApp {
 
         this.bindSlider('opacitySlider', 'opacityValue', (value) => {
             this.currentOpacity = parseInt(value);
-        });
+        }, '%');
 
         this.bindSlider('smoothingSlider', 'smoothingValue', (value) => {
             this.currentSmoothing = parseInt(value);
@@ -108,7 +119,7 @@ class AdvancedDrawingApp {
         this.canvas.addEventListener('mousedown', this.startDrawing.bind(this));
         this.canvas.addEventListener('mousemove', this.draw.bind(this));
         this.canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
-        this.canvas.addEventListener('mouseout', this.stopDrawing.bind(this));
+        this.canvas.addEventListener('mouseleave', this.stopDrawing.bind(this));
 
         // Touch events
         this.canvas.addEventListener('touchstart', this.handleTouch.bind(this));
@@ -116,30 +127,63 @@ class AdvancedDrawingApp {
         this.canvas.addEventListener('touchend', this.stopDrawing.bind(this));
 
         // Control buttons
-        document.getElementById('undoBtn').addEventListener('click', this.undo.bind(this));
-        document.getElementById('redoBtn').addEventListener('click', this.redo.bind(this));
-        document.getElementById('clearBtn').addEventListener('click', this.clearCanvas.bind(this));
-        document.getElementById('saveBtn').addEventListener('click', this.saveImage.bind(this));
-        document.getElementById('exportBtn').addEventListener('click', this.exportImage.bind(this));
-        document.getElementById('newCanvas').addEventListener('click', this.newCanvas.bind(this));
+        this.bindButton('undoBtn', this.undo.bind(this));
+        this.bindButton('redoBtn', this.redo.bind(this));
+        this.bindButton('clearBtn', this.clearCanvas.bind(this));
+        this.bindButton('saveBtn', this.saveImage.bind(this));
+        this.bindButton('exportBtn', this.exportImage.bind(this));
+        this.bindButton('newCanvas', this.newCanvas.bind(this));
+        this.bindButton('toggleSidebar', this.toggleSidebar.bind(this));
+        this.bindButton('zoomIn', () => this.zoom(1.2));
+        this.bindButton('zoomOut', () => this.zoom(0.8));
+        this.bindButton('fitToScreen', this.fitToScreen.bind(this));
 
-        // Sidebar toggle
-        document.getElementById('toggleSidebar').addEventListener('click', this.toggleSidebar.bind(this));
-                
-        // Zoom controls
-        document.getElementById('zoomIn').addEventListener('click', () => this.zoom(1.2));
-        document.getElementById('zoomOut').addEventListener('click', () => this.zoom(0.8));
-        document.getElementById('fitToScreen').addEventListener('click', this.fitToScreen.bind(this));
+        // Keyboard shortcuts
+        this.bindKeyboardShortcuts();
     }
 
-    bindSlider(sliderId, valueId, callback) {
+    bindButton(id, handler) {
+        const button = document.getElementById(id);
+        if (button) {
+            button.addEventListener('click', handler);
+        }
+    }
+
+    bindSlider(sliderId, valueId, callback, suffix = '') {
         const slider = document.getElementById(sliderId);
         const valueDisplay = document.getElementById(valueId);
         
-        slider.addEventListener('input', (e) => {
-            const value = e.target.value;
-            valueDisplay.textContent = value + (sliderId === 'opacitySlider' ? '%' : '');
-            callback(value);
+        if (slider && valueDisplay) {
+            slider.addEventListener('input', (e) => {
+                const value = e.target.value;
+                valueDisplay.textContent = value + suffix;
+                callback(value);
+            });
+        }
+    }
+
+    bindKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            this.redo();
+                        } else {
+                            this.undo();
+                        }
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        this.saveImage();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        this.newCanvas();
+                        break;
+                }
+            }
         });
     }
 
@@ -156,8 +200,12 @@ class AdvancedDrawingApp {
         };
         this.canvas.style.cursor = cursors[this.currentTool] || 'crosshair';
     }
+
     updateStatus(message) {
-        document.getElementById('statusText').textContent = message;
+        const statusText = document.getElementById('statusText');
+        if (statusText) {
+            statusText.textContent = message;
+        }
     }
 
     updateActiveColor() {
@@ -176,15 +224,19 @@ class AdvancedDrawingApp {
             y: (e.clientY - rect.top) * scaleY
         };
     }
+
     handleTouch(e) {
         e.preventDefault();
         const touch = e.touches[0];
         if (!touch) return;
         
-        const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
-            clientX: touch.clientX,
-            clientY: touch.clientY
-        });
+        const mouseEvent = new MouseEvent(
+            e.type === 'touchstart' ? 'mousedown' : 'mousemove',
+            {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            }
+        );
         this.canvas.dispatchEvent(mouseEvent);
     }
 
@@ -203,6 +255,10 @@ class AdvancedDrawingApp {
         this.ctx.lineWidth = this.currentSize;
         this.ctx.strokeStyle = this.currentColor;
         this.ctx.fillStyle = this.currentColor;
+
+        // Save current state for shape tools
+        this.tempCtx.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
+        this.tempCtx.drawImage(this.canvas, 0, 0);
 
         if (this.currentTool === 'brush' || this.currentTool === 'pencil') {
             this.ctx.beginPath();
@@ -234,13 +290,13 @@ class AdvancedDrawingApp {
                 this.drawEraser(pos);
                 break;
             case 'line':
-                this.drawLine(pos);
+                this.drawLinePreview(pos);
                 break;
             case 'rectangle':
-                this.drawRectangle(pos);
+                this.drawRectanglePreview(pos);
                 break;
             case 'circle':
-                this.drawCircle(pos);
+                this.drawCirclePreview(pos);
                 break;
             case 'spray':
                 this.drawSpray(pos);
@@ -286,8 +342,10 @@ class AdvancedDrawingApp {
         this.ctx.stroke();
     }
 
-    drawLine(pos) {
-        this.redrawCanvas();
+    drawLinePreview(pos) {
+        // Clear canvas and redraw from temp
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(this.tempCanvas, 0, 0);
         
         let endX = pos.x;
         let endY = pos.y;
@@ -295,42 +353,62 @@ class AdvancedDrawingApp {
         if (this.features.magneticLine) {
             const angle = Math.atan2(pos.y - this.startY, pos.x - this.startX);
             const snapAngle = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
-            const distance = Math.sqrt(Math.pow(pos.x - this.startX, 2) + Math.pow(pos.y - this.startY, 2));
+            const distance = Math.sqrt(
+                Math.pow(pos.x - this.startX, 2) + Math.pow(pos.y - this.startY, 2)
+            );
             
             endX = this.startX + Math.cos(snapAngle) * distance;
             endY = this.startY + Math.sin(snapAngle) * distance;
         }
         
         this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.globalAlpha = this.currentOpacity / 100;
+        this.ctx.lineWidth = this.currentSize;
+        this.ctx.strokeStyle = this.currentColor;
+        
         this.ctx.beginPath();
         this.ctx.moveTo(this.startX, this.startY);
         this.ctx.lineTo(endX, endY);
         this.ctx.stroke();
     }
 
-    drawRectangle(pos) {
-        this.redrawCanvas();
+    drawRectanglePreview(pos) {
+        // Clear canvas and redraw from temp
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(this.tempCanvas, 0, 0);
         
         let width = pos.x - this.startX;
         let height = pos.y - this.startY;
         
         if (this.features.shapeAssist) {
-            // Make perfect square if shift is held or feature is enabled
+            // Make perfect square
             const size = Math.min(Math.abs(width), Math.abs(height));
             width = width < 0 ? -size : size;
             height = height < 0 ? -size : size;
         }
         
         this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.globalAlpha = this.currentOpacity / 100;
+        this.ctx.lineWidth = this.currentSize;
+        this.ctx.strokeStyle = this.currentColor;
+        
         this.ctx.strokeRect(this.startX, this.startY, width, height);
     }
 
-    drawCircle(pos) {
-        this.redrawCanvas();
+    drawCirclePreview(pos) {
+        // Clear canvas and redraw from temp
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(this.tempCanvas, 0, 0);
         
-        const radius = Math.sqrt(Math.pow(pos.x - this.startX, 2) + Math.pow(pos.y - this.startY, 2));
+        const radius = Math.sqrt(
+            Math.pow(pos.x - this.startX, 2) + Math.pow(pos.y - this.startY, 2)
+        );
         
         this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.globalAlpha = this.currentOpacity / 100;
+        this.ctx.lineWidth = this.currentSize;
+        this.ctx.strokeStyle = this.currentColor;
+        
         this.ctx.beginPath();
         this.ctx.arc(this.startX, this.startY, radius, 0, 2 * Math.PI);
         this.ctx.stroke();
@@ -338,8 +416,10 @@ class AdvancedDrawingApp {
 
     drawSpray(pos) {
         this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.globalAlpha = this.currentOpacity / 100;
+        this.ctx.fillStyle = this.currentColor;
         
-        const density = this.currentSize;
+        const density = Math.max(5, this.currentSize);
         const radius = this.currentSize * 2;
         
         for (let i = 0; i < density; i++) {
@@ -379,8 +459,7 @@ class AdvancedDrawingApp {
     }
 
     floodFill(x, y) {
-        // Simple flood fill implementation
-        const targetColor = this.getPixelColor(x, y);
+        const targetColor = this.getPixelColor(Math.floor(x), Math.floor(y));
         const fillColor = this.hexToRgb(this.currentColor);
         
         if (this.colorsEqual(targetColor, fillColor)) return;
@@ -388,21 +467,26 @@ class AdvancedDrawingApp {
         this.showAutoIndicator();
         
         setTimeout(() => {
-            this.floodFillRecursive(Math.floor(x), Math.floor(y), targetColor, fillColor);
+            this.floodFillStack(Math.floor(x), Math.floor(y), targetColor, fillColor);
             this.hideAutoIndicator();
         }, 100);
     }
 
-    floodFillRecursive(x, y, targetColor, fillColor) {
+    floodFillStack(x, y, targetColor, fillColor) {
         const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
         const data = imageData.data;
         const stack = [{x, y}];
+        const visited = new Set();
         
         while (stack.length > 0) {
             const {x: currentX, y: currentY} = stack.pop();
             
             if (currentX < 0 || currentX >= this.canvas.width || 
                 currentY < 0 || currentY >= this.canvas.height) continue;
+            
+            const key = `${currentX},${currentY}`;
+            if (visited.has(key)) continue;
+            visited.add(key);
             
             const index = (currentY * this.canvas.width + currentX) * 4;
             const currentColor = {
@@ -438,6 +522,7 @@ class AdvancedDrawingApp {
             a: data[3]
         };
     }
+
     hexToRgb(hex) {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -455,12 +540,16 @@ class AdvancedDrawingApp {
 
     showAutoIndicator() {
         const indicator = document.getElementById('autoIndicator');
-        indicator.classList.add('show');
+        if (indicator) {
+            indicator.classList.add('show');
+        }
     }
 
     hideAutoIndicator() {
         const indicator = document.getElementById('autoIndicator');
-        indicator.classList.remove('show');
+        if (indicator) {
+            indicator.classList.remove('show');
+        }
     }
 
     stopDrawing() {
@@ -476,23 +565,18 @@ class AdvancedDrawingApp {
         }
     }
 
-    redrawCanvas() {
-        if (this.history.length > 0) {
-            const img = new Image();
-            img.onload = () => {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.ctx.drawImage(img, 0, 0);
-            };
-            img.src = this.history[this.historyStep];
-        }
-    }
-
     saveState() {
         this.historyStep++;
         if (this.historyStep < this.history.length) {
             this.history.length = this.historyStep;
         }
         this.history.push(this.canvas.toDataURL());
+        
+        // Limit history to 20 steps to prevent memory issues
+        if (this.history.length > 20) {
+            this.history.shift();
+            this.historyStep--;
+        }
     }
 
     undo() {
@@ -521,13 +605,15 @@ class AdvancedDrawingApp {
     }
 
     clearCanvas() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.strokeCount = 0;
-        this.updateStrokeCount();
-        this.saveState();
-        this.updateStatus('Canvas cleared');
+        if (confirm('Clear the canvas? This cannot be undone.')) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.strokeCount = 0;
+            this.updateStrokeCount();
+            this.saveState();
+            this.updateStatus('Canvas cleared');
+        }
     }
 
     newCanvas() {
@@ -555,70 +641,67 @@ class AdvancedDrawingApp {
 
     toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('collapsed');
+        if (sidebar) {
+            sidebar.classList.toggle('collapsed');
+        }
     }
 
     zoom(factor) {
         this.zoomLevel *= factor;
         this.zoomLevel = Math.max(0.1, Math.min(5, this.zoomLevel));
         this.canvas.style.transform = `scale(${this.zoomLevel})`;
-        document.getElementById('zoomLevel').textContent = Math.round(this.zoomLevel * 100) + '%';
+        
+        const zoomLevelElement = document.getElementById('zoomLevel');
+        if (zoomLevelElement) {
+            zoomLevelElement.textContent = Math.round(this.zoomLevel * 100) + '%';
+        }
+        
         this.updateStatus(`Zoom: ${Math.round(this.zoomLevel * 100)}%`);
     }
 
     fitToScreen() {
         const container = document.querySelector('.canvas-area');
-        const containerRect = container.getBoundingClientRect();
-        const canvasRect = this.canvas.getBoundingClientRect();
+        if (!container) return;
         
+        const containerRect = container.getBoundingClientRect();
         const scaleX = (containerRect.width - 80) / this.canvas.width;
         const scaleY = (containerRect.height - 80) / this.canvas.height;
         
-        this.zoomLevel = Math.min(scaleX, scaleY);
+        this.zoomLevel = Math.min(scaleX, scaleY, 1);
         this.canvas.style.transform = `scale(${this.zoomLevel})`;
-        document.getElementById('zoomLevel').textContent = Math.round(this.zoomLevel * 100) + '%';
+        
+        const zoomLevelElement = document.getElementById('zoomLevel');
+        if (zoomLevelElement) {
+            zoomLevelElement.textContent = Math.round(this.zoomLevel * 100) + '%';
+        }
+        
         this.updateStatus('Fit to screen');
     }
 
     updateStrokeCount() {
-        document.getElementById('strokeCount').textContent = `${this.strokeCount} strokes`;
+        const strokeCountElement = document.getElementById('strokeCount');
+        if (strokeCountElement) {
+            strokeCountElement.textContent = `${this.strokeCount} strokes`;
+        }
     }
 }
 
-// Initialize the app
-const app = new AdvancedDrawingApp();
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new AdvancedDrawingApp();
+    
+    // Add window resize handler
+    window.addEventListener('resize', () => {
+        app.fitToScreen();
+    });
+    
+    // Make app globally accessible for debugging
+    window.drawingApp = app;
+});
 
-// Add keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-            case 'z':
-                e.preventDefault();
-                if (e.shiftKey) {
-                    app.redo();
-                } else {
-                    app.undo();
-                }
-                break;
-            case 's':
-                e.preventDefault();
-                app.saveImage();
-                break;
-            case 'n':
-                e.preventDefault();
-                app.newCanvas();
-                break;
-        }
+// Add responsive behavior for mobile
+window.addEventListener('resize', () => {
+    if (window.drawingApp) {
+        window.drawingApp.fitToScreen();
     }
 });
-
-// Add responsive behavior
-window.addEventListener('resize', () => {
-    app.fitToScreen();
-});
-        
-
-
-
-
-

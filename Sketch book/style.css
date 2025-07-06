@@ -26,16 +26,17 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
+
         .header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
-            padding: 16px 24px;
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -47,25 +48,28 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--primary);
         }
 
         .logo::before {
             content: "🎨";
-            font-size: 28px;
+            font-size: 24px;
             animation: float 3s ease-in-out infinite;
         }
+
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-5px); }
         }
+
         .main-container {
             flex: 1;
             display: flex;
             gap: 0;
             overflow: hidden;
+            height: calc(100vh - 80px);
         }
 
         .sidebar {
@@ -84,13 +88,10 @@
         }
 
         .sidebar-section {
-            padding: 24px 20px;
+            padding: 20px 16px;
             border-bottom: 1px solid var(--border);
         }
 
-        .sidebar-section:last-child {
-            border-bottom: none;
-        }
         .section-title {
             font-size: 14px;
             font-weight: 600;
@@ -104,34 +105,19 @@
         .tool-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 8px;
         }
 
         .tool-item {
             background: var(--surface);
             border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 16px 12px;
+            border-radius: 8px;
+            padding: 12px 8px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
             position: relative;
             overflow: hidden;
-        }
-
-        .tool-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-            transition: left 0.5s;
-        }
-
-        .tool-item:hover::before {
-            left: 100%;
         }
 
         .tool-item:hover {
@@ -149,28 +135,29 @@
         }
 
         .tool-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 20px;
+            margin-bottom: 4px;
             display: block;
         }
 
         .tool-name {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
         }
+
         .auto-features {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .feature-toggle {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 8px 12px;
             background: var(--surface-dark);
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -182,29 +169,30 @@
         .feature-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .feature-icon {
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .feature-text {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text);
         }
 
         .feature-desc {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-light);
-            margin-top: 2px;
+            margin-top: 1px;
         }
+
         .toggle-switch {
-            width: 44px;
-            height: 24px;
+            width: 36px;
+            height: 20px;
             background: var(--border);
-            border-radius: 12px;
+            border-radius: 10px;
             position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -219,51 +207,59 @@
             position: absolute;
             top: 2px;
             left: 2px;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             background: white;
             border-radius: 50%;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .toggle-switch.active::after {
-            transform: translateX(20px);
+            transform: translateX(16px);
         }
+
         .color-section {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-        }
-
-        .color-picker-wrapper {
-            position: relative;
+            gap: 12px;
         }
 
         .color-picker {
             width: 100%;
-            height: 50px;
-            border: none;
-            border-radius: 12px;
+            height: 40px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: var(--shadow);
             transition: all 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker::-webkit-color-swatch {
+            border: none;
+            border-radius: 6px;
         }
 
         .color-picker:hover {
             transform: scale(1.02);
+            border-color: var(--primary);
         }
 
         .preset-colors {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
 
         .preset-color {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
             cursor: pointer;
             border: 2px solid var(--border);
             transition: all 0.3s ease;
@@ -283,19 +279,20 @@
         .brush-controls {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
+
         .slider-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .slider-label {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text);
         }
@@ -303,9 +300,11 @@
         .slider-value {
             background: var(--primary);
             color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            min-width: 30px;
+            text-align: center;
         }
 
         .slider {
@@ -320,8 +319,8 @@
 
         .slider::-webkit-slider-thumb {
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             background: var(--primary);
             border-radius: 50%;
             cursor: pointer;
@@ -332,6 +331,7 @@
         .slider::-webkit-slider-thumb:hover {
             transform: scale(1.2);
         }
+
         .canvas-container {
             flex: 1;
             display: flex;
@@ -345,7 +345,7 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
-            padding: 12px 20px;
+            padding: 8px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -354,29 +354,29 @@
         .canvas-info {
             display: flex;
             align-items: center;
-            gap: 16px;
-            font-size: 13px;
+            gap: 12px;
+            font-size: 12px;
             color: var(--text-light);
         }
 
         .canvas-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .action-btn {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 16px;
+            border-radius: 6px;
+            padding: 6px 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .action-btn:hover {
@@ -400,22 +400,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 40px;
+            padding: 20px;
             position: relative;
+            overflow: auto;
         }
 
         #canvas {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             cursor: crosshair;
-            max-width: 100%;
-            max-height: 100%;
             transition: all 0.3s ease;
         }
 
         #canvas:hover {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         .auto-indicator {
@@ -438,16 +437,6 @@
             transform: translateY(0);
         }
 
-        .shape-preview {
-            position: absolute;
-            pointer-events: none;
-            border: 2px dashed var(--primary);
-            border-radius: 4px;
-            background: rgba(99, 102, 241, 0.1);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
         .floating-panel {
             position: absolute;
             bottom: 20px;
@@ -455,8 +444,8 @@
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 16px 24px;
+            border-radius: 12px;
+            padding: 12px 20px;
             box-shadow: var(--shadow-lg);
             display: flex;
             align-items: center;
@@ -474,11 +463,12 @@
                 opacity: 1;
             }
         }
+
         .status-indicator {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-light);
         }
 
@@ -493,6 +483,21 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
+        }
+
+        .loading-spinner {
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -512,7 +517,7 @@
             }
 
             .canvas-area {
-                padding: 20px;
+                padding: 10px;
             }
 
             .floating-panel {
@@ -522,24 +527,3 @@
                 transform: none;
             }
         }
-
-        .loading-spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border);
-            border-top: 2px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-
-
-
-
-
-

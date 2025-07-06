@@ -57,4 +57,39 @@
             font-size: 28px;
             animation: float 3s ease-in-out infinite;
         }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        .main-container {
+            flex: 1;
+            display: flex;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-section {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
 

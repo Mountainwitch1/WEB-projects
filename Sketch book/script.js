@@ -81,3 +81,26 @@ class AdvancedDrawingApp {
             this.currentColor = e.target.value;
             this.updateActiveColor();
         });
+        // Preset colors
+        document.querySelectorAll('.preset-color').forEach(color => {
+            color.addEventListener('click', (e) => {
+                document.querySelectorAll('.preset-color').forEach(c => c.classList.remove('active'));
+                color.classList.add('active');
+                this.currentColor = color.dataset.color;
+                document.getElementById('colorPicker').value = this.currentColor;
+            });
+        });
+
+        // Sliders
+        this.bindSlider('sizeSlider', 'sizeValue', (value) => {
+            this.currentSize = parseInt(value);
+        });
+
+        this.bindSlider('opacitySlider', 'opacityValue', (value) => {
+            this.currentOpacity = parseInt(value);
+        });
+
+        this.bindSlider('smoothingSlider', 'smoothingValue', (value) => {
+            this.currentSmoothing = parseInt(value);
+        });
+

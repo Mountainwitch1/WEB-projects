@@ -230,6 +230,110 @@
         .toggle-switch.active::after {
             transform: translateX(20px);
         }
+        .color-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .color-picker-wrapper {
+            position: relative;
+        }
+
+        .color-picker {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .color-picker:hover {
+            transform: scale(1.02);
+        }
+
+        .preset-colors {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+
+        .preset-color {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .preset-color:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow);
+        }
+
+        .preset-color.active {
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .brush-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .slider-value {
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+
 
 
 

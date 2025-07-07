@@ -3,15 +3,36 @@
 <head>
     <title>Mood Music Recommender</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Mood-Based Music Recommendation</h1>
-        <form action="/recommend" method="POST">
-            <label for="mood">How are you feeling today?</label><br>
-            <input type="text" id="mood" name="mood" required><br><br>
-            <button type="submit">Get Recommendation</button>
-        </form>
+        <div class="mood-card">
+            <h1><i class="fas fa-music"></i> Mood Music</h1>
+            <div class="mood-form">
+                <form action="/recommend" method="POST">
+                    <div class="mood-input-group">
+                        <i class="fas fa-heart"></i>
+                        <input type="text" id="mood" name="mood" placeholder="How are you feeling today?" required>
+                    </div>
+                    <div class="mood-suggestions">
+                        <span class="mood-tag" onclick="setMood('Happy')">Happy</span>
+                        <span class="mood-tag" onclick="setMood('Sad')">Sad</span>
+                        <span class="mood-tag" onclick="setMood('Energetic')">Energetic</span>
+                        <span class="mood-tag" onclick="setMood('Relaxed')">Relaxed</span>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-search"></i> Find My Music
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
+    <script>
+        function setMood(mood) {
+            document.getElementById('mood').value = mood;
+        }
+    </script>
 </body>
 </html>

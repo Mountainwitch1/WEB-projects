@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Music Recommendation</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Music for Your Mood: {{ mood.capitalize() }}</h1>
+        <p>{{ message }}</p>
+        {% for song in songs %}
+            <div class="song">
+                <h3>{{ song.title }}</h3>
+                <iframe width="560" height="315"
+                    src="https://www.youtube.com/embed/{{ song.video_id }}"
+                    frameborder="0" allowfullscreen></iframe>
+            </div>
+        {% endfor %}
+        <a href="/">Try another mood</a>
+    </div>
+</body>
+</html>

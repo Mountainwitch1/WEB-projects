@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mood Music Recommender</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Mood-Based Music Recommendation</h1>
+        <form action="/recommend" method="POST">
+            <label for="mood">How are you feeling today?</label><br>
+            <input type="text" id="mood" name="mood" required><br><br>
+            <button type="submit">Get Recommendation</button>
+        </form>
+    </div>
+</body>
+</html>
